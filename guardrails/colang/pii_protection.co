@@ -1,0 +1,85 @@
+# =============================================================================
+# pii_protection.co — Colang 1.0 PII Protection Flow
+# =============================================================================
+# Detects and blocks personally identifiable information both in user input
+# (preventing unnecessary PII exposure) and in bot output (preventing PII
+# leakage from training data or retrieved context).
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# User intent: sharing PII (pattern-matched)
+# 20+ patterns across SSN, credit cards, phone/address, passwords, medical
+# ---------------------------------------------------------------------------
+define user share pii
+  "my social security"
+  "my social security number"
+  "ssn is"
+  "social is"
+  "social security number is"
+  "my card number"
+  "my credit card"
+  "visa ending in"
+  "mastercard ending in"
+  "credit card number"
+  "debit card number"
+  "card number is"
+  "cvv is"
+  "my phone number is"
+  "my cell number is"
+  "my address is"
+  "i live at"
+  "my home address"
+  "my zip code is"
+  "my password is"
+  "my login credentials"
+  "username and password"
+  "my pin is"
+  "my pin number"
+  "my diagnosis is"
+  "my medical condition"
+  "my prescription is"
+  "my insurance number"
+  "my date of birth is"
+  "my passport number"
+  "my driver's license"
+  "my bank account number"
+  "routing number is"
+  "my tax id"
+  "my ein is"
+
+# ---------------------------------------------------------------------------
+# Bot responses
+# ---------------------------------------------------------------------------
+define bot refuse pii input
+  "For your security, please avoid sharing sensitive personal information such as Social Security numbers, credit card details, passwords, or medical information in this conversation. I'm here to help, but I'm not able to safely process that kind of data. Is there something I can assist you with that doesn't require sharing personal details?"
+
+define bot redacted pii output
+  "My response contained potentially sensitive information that has been redacted for your protection. Please consult the appropriate secure channels for information involving personal data."
+
+# ---------------------------------------------------------------------------
+# Flow: input PII check — pattern match first, then LLM action
+# ---------------------------------------------------------------------------
+define flow check pii input
+  user share pii
+  bot refuse pii input
+  stop
+
+# ---------------------------------------------------------------------------
+# Flow: input PII check via action (catches patterns not in the list above)
+# ---------------------------------------------------------------------------
+define flow check pii input with action
+  $result = execute check_pii_action(text=$user_message)
+
+  if $result.flagged == True
+    bot refuse pii input
+    stop
+
+# ---------------------------------------------------------------------------
+# Flow: output PII check — scan bot response before delivery
+# ---------------------------------------------------------------------------
+define flow check pii output
+  $result = execute check_pii_action(text=$bot_response)
+
+  if $result.flagged == True
+    bot redacted pii output
+    stop
