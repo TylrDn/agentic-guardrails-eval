@@ -1,0 +1,66 @@
+# =============================================================================
+# hallucination.co — Colang 1.0 Hallucination Output Check Flow
+# =============================================================================
+# Scores bot output for faithfulness to retrieved context. Low-confidence
+# responses receive uncertainty disclaimers; very low scores trigger refusal.
+# Separate strict mode (0.8 threshold) is available for enterprise deployments.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Bot responses
+# ---------------------------------------------------------------------------
+define bot add uncertainty disclaimer
+  "Note: I may not have sufficient information to answer this fully. Please verify with authoritative sources."
+
+define bot refuse hallucination
+  "I don't have reliable information to answer this accurately."
+
+define bot add strict uncertainty disclaimer
+  "Note: The confidence in this response is below the required threshold. The information provided may be incomplete or unverified. Please consult authoritative sources before acting on this response."
+
+# ---------------------------------------------------------------------------
+# Flow: standard hallucination check (threshold 0.6)
+# Called on the bot output path after retrieval.
+# score_hallucination returns {"score": float, "flagged": bool}
+# If score < 0.4 → full refusal
+# If 0.4 <= score < 0.6 → disclaimer appended
+# If score >= 0.6 → pass through (no action)
+# ---------------------------------------------------------------------------
+define flow check hallucination
+  $result = execute score_hallucination(claim=$bot_response, context=$retrieved_context)
+
+  if $result.score < 0.4
+    bot refuse hallucination
+    stop
+
+  if $result.score < 0.6
+    bot add uncertainty disclaimer
+
+# ---------------------------------------------------------------------------
+# Flow: strict hallucination check (threshold 0.8 — enterprise mode)
+# Suitable for high-stakes domains: legal, medical, financial.
+# score < 0.5 → full refusal
+# 0.5 <= score < 0.8 → strict disclaimer
+# score >= 0.8 → pass through
+# ---------------------------------------------------------------------------
+define flow check hallucination strict
+  $result = execute score_hallucination(claim=$bot_response, context=$retrieved_context)
+
+  if $result.score < 0.5
+    bot refuse hallucination
+    stop
+
+  if $result.score < 0.8
+    bot add strict uncertainty disclaimer
+
+# ---------------------------------------------------------------------------
+# Flow: hallucination check without retrieval context
+# When no retrieved context is available, the score defaults to 1.0
+# (the action returns {"score": 1.0, "flagged": false} when context is empty),
+# so this flow is effectively a no-op in RAG-free settings.
+# ---------------------------------------------------------------------------
+define flow check hallucination no context
+  $result = execute score_hallucination(claim=$bot_response, context="")
+
+  if $result.flagged == True
+    bot add uncertainty disclaimer
