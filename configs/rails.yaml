@@ -1,0 +1,24 @@
+models:
+  - type: main
+    engine: openai
+    model: gpt-4o
+
+rails:
+  input:
+    flows:
+      - check prompt injection
+      - check pii in input
+  output:
+    flows:
+      - check hallucination
+      - check pii in output
+      - check toxicity
+
+pii:
+  entities:
+    - PERSON
+    - EMAIL_ADDRESS
+    - PHONE_NUMBER
+    - CREDIT_CARD
+    - US_SSN
+  score_threshold: 0.8
