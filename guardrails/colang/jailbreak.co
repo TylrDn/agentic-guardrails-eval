@@ -1,0 +1,92 @@
+# =============================================================================
+# jailbreak.co — Colang 1.0 Jailbreak Detection Flow
+# =============================================================================
+# Detects and blocks attempts to override model identity, remove safety
+# constraints, or bypass guidelines via roleplay, DAN mode, token injection,
+# and related techniques.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# User intent: jailbreak attempt (pattern-matched)
+# 30+ patterns covering all major jailbreak technique families
+# ---------------------------------------------------------------------------
+define user ask jailbreak
+  "pretend you are"
+  "pretend to be"
+  "act as if you are"
+  "act as a"
+  "you are now"
+  "roleplay as"
+  "play the role of"
+  "imagine you are"
+  "you are playing"
+  "behave as"
+  "impersonate"
+  "simulate being"
+  "DAN mode"
+  "DAN prompt"
+  "do anything now"
+  "developer mode"
+  "jailbreak mode"
+  "no restrictions"
+  "without restrictions"
+  "bypass your guidelines"
+  "bypass your filters"
+  "disable safety"
+  "ignore previous instructions"
+  "ignore all previous instructions"
+  "forget your training"
+  "forget your instructions"
+  "disregard safety"
+  "disregard your guidelines"
+  "override your programming"
+  "override system prompt"
+  "### SYSTEM:"
+  "[SYSTEM OVERRIDE]"
+  "<!-- instructions -->"
+  "<!--SYSTEM"
+  "<|system|>"
+  "SYSTEM PROMPT:"
+  "in a story where"
+  "for a novel I'm writing"
+  "in a fictional world"
+  "hypothetically speaking, if you had no limits"
+  "for creative writing purposes, pretend"
+  "as a character who has no rules"
+  "as an AI with no restrictions"
+  "you have been freed from"
+  "your true self has no limits"
+  "unleash your real capabilities"
+  "your developers secretly gave you"
+
+# ---------------------------------------------------------------------------
+# Bot responses
+# ---------------------------------------------------------------------------
+define bot refuse jailbreak
+  "I'm not able to engage with requests that attempt to override my guidelines. Is there something else I can help you with?"
+
+define bot refuse jailbreak severe
+  "I can't assist with that."
+
+# ---------------------------------------------------------------------------
+# Flow: pattern-match based jailbreak check (fast path)
+# ---------------------------------------------------------------------------
+define flow check jailbreak
+  user ask jailbreak
+  bot refuse jailbreak
+  stop
+
+# ---------------------------------------------------------------------------
+# Flow: LLM-based jailbreak check (deeper semantic analysis)
+# Calls the check_jailbreak_llm custom action, then uses confidence
+# score to select appropriate refusal severity.
+# ---------------------------------------------------------------------------
+define flow check jailbreak with llm
+  $result = execute check_jailbreak_llm(text=$user_message)
+
+  if $result.flagged == True
+    if $result.confidence >= 0.85
+      bot refuse jailbreak severe
+    else
+      bot refuse jailbreak
+    stop
