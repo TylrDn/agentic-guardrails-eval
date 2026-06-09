@@ -1,9 +1,20 @@
 # agentic-guardrails-eval — Task Board
 
 **Repo:** agentic-guardrails-eval
-**Completion:** 40%
-**Last Audit:** 2026-06-08
-**Open Tasks:** 5 critical / 2 polish / 2 enhancement
+**Completion:** 100% SPECCED
+**Last Audit:** 2026-06-09
+**Status:** All tasks have dedicated Cursor subagents. Open in Cursor and run `/subagent-name` to execute autonomously.
+
+---
+
+## Cursor Subagents
+
+| Subagent | Invoke | Task | Est. Time |
+|---|---|---|---|
+| `build-colang-flows.md` | `/build-colang-flows` | NeMo Guardrails Colang flows (jailbreak, PII, hallucination, injection) + config.yml | 60 min |
+| `build-red-team.md` | `/build-red-team` | Red team attack library (75+ attacks) + RedTeamAgent | 45 min |
+| `build-asr-eval.md` | `/build-asr-eval` | ASR SafetyEvaluator + LangSmith logging | 30 min |
+| `build-report-gen.md` | `/build-report-gen` | Safety report generator (markdown + HTML + Chart.js) | 40 min |
 
 ---
 
@@ -18,6 +29,8 @@
 - `pytest tests/test_colang_flows.py` all green
 - All actions return typed `dict[str, Any]` with consistent schema
 
+> **Subagent:** `/build-colang-flows`
+
 ---
 
 ### [ ] 1.2 Update guardrails/config/config.yml to NIM
@@ -28,6 +41,8 @@
 - `colang_config` path resolves correctly from repo root
 - Input rails: `check jailbreak`, `check jailbreak with detector`, `check pii input`, `check injection`, `check injection with detector`
 - Output rails: `check hallucination`, `check pii output`
+
+> **Subagent:** `/build-colang-flows`
 
 ---
 
@@ -41,6 +56,8 @@
 - `pytest tests/test_red_team.py` all green
 - `mypy --strict red_team/red_team_agent.py` exits 0
 
+> **Subagent:** `/build-red-team`
+
 ---
 
 ### [ ] 1.4 ASR Safety Evaluator
@@ -51,6 +68,8 @@
 - `overall_asr` is float 0.0–1.0
 - LangSmith logging works when `LANGSMITH_API_KEY` set; skipped gracefully otherwise
 - `pytest tests/test_safety_eval.py` all green
+
+> **Subagent:** `/build-asr-eval`
 
 ---
 
@@ -63,6 +82,8 @@
 - Color coding: <10% green, 10-30% yellow, 30-50% orange, >50% red
 - Recommendations are dynamic (not static)
 - `pytest tests/test_report_gen.py` all green
+
+> **Subagent:** `/build-report-gen`
 
 ---
 
