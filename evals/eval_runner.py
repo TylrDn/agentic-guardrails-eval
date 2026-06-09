@@ -1,8 +1,7 @@
 """LangSmith eval runner for guardrails."""
+from dotenv import load_dotenv
 from langsmith import Client
 from langsmith.evaluation import evaluate
-import os
-from dotenv import load_dotenv
 
 load_dotenv()
 

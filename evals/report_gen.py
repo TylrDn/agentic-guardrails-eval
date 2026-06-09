@@ -104,8 +104,8 @@ def _build_markdown(eval_results: dict[str, Any]) -> str:
     # Executive Summary
     lines.append("## Executive Summary")
     lines.append("")
-    lines.append(f"| Metric | Value |")
-    lines.append(f"|--------|-------|")
+    lines.append("| Metric | Value |")
+    lines.append("|--------|-------|")
     lines.append(f"| Total Attacks | {total} |")
     lines.append(f"| Expected-Blocked | {overall.get('expected_blocked', '-')} |")
     lines.append(f"| Bypassed | {bypassed} |")
@@ -151,7 +151,10 @@ def _build_markdown(eval_results: dict[str, Any]) -> str:
         lines.append("|------|---------------|----------|-----|")
         for fname, fstats in sorted(by_file.items()):
             lines.append(
-                f"| {fname} | {fstats.get('total', 0)} | {fstats.get('bypassed', 0)} | {fstats.get('asr', 0.0):.1%} |"
+                (
+                    f"| {fname} | {fstats.get('total', 0)}"
+                    f" | {fstats.get('bypassed', 0)} | {fstats.get('asr', 0.0):.1%} |"
+                )
             )
         lines.append("")
 
@@ -188,7 +191,8 @@ def _build_markdown(eval_results: dict[str, Any]) -> str:
             lines.append("")
 
         if len(failed) > 50:
-            lines.append(f"_...and {len(failed) - 50} more. See the JSON results file for the full list._")
+            count = len(failed) - 50
+            lines.append(f"_...and {count} more. See the JSON results file for the full list._")
             lines.append("")
 
     # Config comparison (if present)
@@ -196,10 +200,14 @@ def _build_markdown(eval_results: dict[str, Any]) -> str:
     if comparison:
         lines.append("## Configuration Comparison")
         lines.append("")
-        lines.append(f"| | Config A | Config B |")
-        lines.append(f"|--|---------|---------|")
-        lines.append(f"| **Path** | `{comparison.get('config_a_path', '')}` | `{comparison.get('config_b_path', '')}` |")
-        lines.append(f"| **ASR** | {comparison.get('config_a_asr', 0.0):.1%} | {comparison.get('config_b_asr', 0.0):.1%} |")
+        lines.append("| | Config A | Config B |")
+        lines.append("|--|---------|---------|")
+        a_path = comparison.get('config_a_path', '')
+        b_path = comparison.get('config_b_path', '')
+        lines.append(f"| **Path** | `{a_path}` | `{b_path}` |")
+        a_asr = comparison.get('config_a_asr', 0.0)
+        b_asr = comparison.get('config_b_asr', 0.0)
+        lines.append(f"| **ASR** | {a_asr:.1%} | {b_asr:.1%} |")
         lines.append(f"| **Winner** | {comparison.get('winner', '?')} | |")
         lines.append("")
 
@@ -320,7 +328,10 @@ _HTML_TEMPLATE = """\
       max-height: 120px; overflow-y: auto;
     }}
     /* ── Footer ── */
-    footer {{ margin-top: 3rem; font-size: 0.8rem; color: #BAB9B4; border-top: 1px solid #D4D1CA; padding-top: 1rem; }}
+    footer {{
+        margin-top: 3rem; font-size: 0.8rem; color: #BAB9B4;
+        border-top: 1px solid #D4D1CA; padding-top: 1rem;
+    }}
   </style>
 </head>
 <body>
@@ -635,7 +646,7 @@ def generate_report(eval_results: dict[str, Any], output_dir: str) -> tuple[Path
     overall = eval_results.get("overall", {})
     asr = overall.get("asr", 0.0)
     status, _ = _recommend(asr)
-    print(f"\nReport generated:")
+    print("\nReport generated:")
     print(f"  Markdown → {md_path}")
     print(f"  HTML     → {html_path}")
     print(f"  Status   : {status}  (ASR = {asr:.1%})")

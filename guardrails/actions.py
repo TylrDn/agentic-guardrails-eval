@@ -14,12 +14,13 @@ import os
 from functools import lru_cache
 from typing import Any
 
-from openai import AsyncOpenAI, OpenAI
 from nemoguardrails.actions import action
+from openai import AsyncOpenAI, OpenAI
+
+from detectors.hallucination_detector import score_faithfulness
 
 # Relative imports — these resolve correctly when the package root is on sys.path
 from detectors.injection_detector import detect_injection
-from detectors.hallucination_detector import score_faithfulness
 from detectors.pii_detector import detect_pii
 
 logger = logging.getLogger(__name__)

@@ -22,7 +22,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
 
 import httpx
 from dotenv import load_dotenv
@@ -569,13 +568,15 @@ if __name__ == "__main__":
 
     # Print summary to stdout
     print(f"\n{'='*60}")
-    print(f"Red Team Summary")
+    print("Red Team Summary")
     print(f"{'='*60}")
     print(f"Total attacks : {report.total_attacks}")
     print(f"Passed        : {report.passed}")
     print(f"Failed        : {report.failed}")
     print(f"Overall ASR   : {report.asr:.1%}")
-    print(f"\nASR by category:")
+    print("\nASR by category:")
     for cat, stats in sorted(report.by_category.items()):
-        print(f"  {cat:<30} {stats['asr']:.1%} ({stats['bypassed']} bypassed / {stats['total']} total)")
+        bypassed = stats['bypassed']
+        total = stats['total']
+        print(f"  {cat:<30} {stats['asr']:.1%} ({bypassed} bypassed / {total} total)")
     print(f"\nReport saved → {args.output}")

@@ -20,7 +20,6 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -405,9 +404,11 @@ class SafetyEvaluator:
         print("Config Comparison Results")
         print(f"{'='*60}")
         print(f"Config A : {config_a}")
-        print(f"  ASR    : {asr_a:.1%}  ({result_a['bypassed']} bypassed / {result_a.get('expected_blocked', 0)} total)")
+        eb_a = result_a.get('expected_blocked', 0)
+        print(f"  ASR    : {asr_a:.1%}  ({result_a['bypassed']} bypassed / {eb_a} total)")
         print(f"Config B : {config_b}")
-        print(f"  ASR    : {asr_b:.1%}  ({result_b['bypassed']} bypassed / {result_b.get('expected_blocked', 0)} total)")
+        eb_b = result_b.get('expected_blocked', 0)
+        print(f"  ASR    : {asr_b:.1%}  ({result_b['bypassed']} bypassed / {eb_b} total)")
         print(f"Delta    : {delta:+.1%}")
         print(f"Winner   : {winner}")
 

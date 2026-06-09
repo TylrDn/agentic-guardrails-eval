@@ -1,10 +1,11 @@
 """FastAPI guardrails enforcement gateway."""
+import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+
+from detectors.hallucination_detector import score_faithfulness
 from detectors.injection_detector import detect_injection
 from detectors.pii_detector import redact_pii
-from detectors.hallucination_detector import score_faithfulness
-import uvicorn
 
 app = FastAPI(title="agentic-guardrails-eval", version="0.1.0")
 
