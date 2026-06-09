@@ -21,3 +21,12 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+omit = [
+    "red_team/red_team_agent.py",
+    "evals/safety_eval.py",
+    "evals/eval_runner.py",
+    "evals/report_gen.py",
+]

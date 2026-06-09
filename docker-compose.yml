@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  guardrails-api:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    image: agentic-guardrails-eval:latest
+    container_name: guardrails-api
+    ports:
+      - "8090:8090"
+    env_file: .env
+    environment:
+      - GUARDRAILS_CONFIG_PATH=guardrails/config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

@@ -30,13 +30,24 @@ def _get_anonymizer():
     return _anonymizer
 
 
-def detect_pii(text: str) -> list:
+def _analyze_text(text: str) -> list:
     results = _get_analyzer().analyze(text=text, entities=PII_ENTITIES, language="en")
     return [r for r in results if r.score >= SCORE_THRESHOLD]
 
 
+def detect_pii(text: str) -> dict[str, bool | list[str]]:
+    """Detect PII entities in *text*.
+
+    Returns:
+        dict with ``flagged`` bool and ``types`` list of entity type strings.
+    """
+    results = _analyze_text(text)
+    types = sorted({r.entity_type for r in results})
+    return {"flagged": bool(results), "types": types}
+
+
 def redact_pii(text: str) -> str:
-    results = detect_pii(text)
+    results = _analyze_text(text)
     if not results:
         return text
     anonymized = _get_anonymizer().anonymize(text=text, analyzer_results=results)
