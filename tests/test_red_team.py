@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import httpx
-
 from red_team.red_team_agent import AttackResult, RedTeamAgent, _is_blocked
 
 
