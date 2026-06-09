@@ -26,7 +26,6 @@ jobs:
       - name: Install test deps
         run: |
           pip install pytest pytest-cov python-dotenv pydantic openai langsmith fastapi httpx
-          # Install presidio with pinned click to avoid dependency conflict
           pip install "click>=8.0" presidio-analyzer presidio-anonymizer
 
       - name: Run tests
