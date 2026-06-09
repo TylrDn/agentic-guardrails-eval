@@ -20,7 +20,7 @@ INJECTION_PATTERNS = [
 
 def heuristic_check(text: str) -> bool:
     text_lower = text.lower()
-    return any(re.search(p, text_lower) for p in INJECTION_PATTERNS)
+    return any(re.search(p, text_lower, re.IGNORECASE) for p in INJECTION_PATTERNS)
 
 
 def llm_check(text: str, client: OpenAI = None) -> bool:
